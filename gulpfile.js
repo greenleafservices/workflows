@@ -3,6 +3,7 @@ var gulp = require('gulp'),
     coffee = require('gulp-coffee'),
     browserify = require('gulp-browserify'),
     compass = require('gulp-compass'),
+    connect = require('gulp-connect'),
     concat = require('gulp-concat');
 
 var coffeeSources = ['components/coffee/tagline.coffee'];
@@ -15,6 +16,8 @@ var jsSources = [
 
 var sassSources = ['components/sass/style.scss'];
 /* we only uses style.scss (not the partials) because that is the file that we want compass to look at, not the partials (they are accessed throught the compass process) */
+var htmlSources = ['builds/development/*.html'];
+var jsonSources = ['builds/development/js/*.json'];
 
 gulp.task('coffee', function() {
   gulp.src(coffeeSources)
@@ -28,6 +31,7 @@ gulp.task('js', function() { /* the console command to run this task will be gul
     .pipe(concat('script.js'))
     .pipe(browserify())
     .pipe(gulp.dest('builds/development/js'))
+    .pipe(connect.reload())
 });
 
 gulp.task('compass', function() {
@@ -40,12 +44,35 @@ gulp.task('compass', function() {
     })
     .on('error', gutil.log))
     .pipe(gulp.dest('builds/development/css'))
+    .pipe(connect.reload())
 });
 
 gulp.task('watch', function() {
   gulp.watch(coffeeSources, ['coffee']);
   gulp.watch(jsSources, ['js']);
+  /* Here we check alll .scss files for any updates and run the compass task if necessary */ 
   gulp.watch('components/sass/*.scss', ['compass']);
+  gulp.watch(htmlSources, ['html']);
+  gulp.watch(jsonSources, ['json']);
+});
+ 
+gulp.task('connect', function() {
+  connect.server({
+    root: 'builds/development/',
+    livereload: true
+  });
+});
+/*
+  gulp.task('html', function() {
+    gulp.src(htmlSources)
+     .pipe(connect.reload())
 });
 
-gulp.task('default', ['coffee', 'js', 'compass', 'watch']);
+gulp.task('json', function() {
+  gulp.src(jsonSources)
+    .pipe(connect.reload())
+});
+    
+*/
+//gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'connect', 'watch']);
+gulp.task('default', ['coffee', 'js', 'compass', 'connect', 'watch']);
