@@ -62,7 +62,7 @@ gulp.task('connect', function() {
     livereload: true
   });
 });
-/*
+
   gulp.task('html', function() {
     gulp.src(htmlSources)
      .pipe(connect.reload())
@@ -73,6 +73,5 @@ gulp.task('json', function() {
     .pipe(connect.reload())
 });
     
-*/
-//gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'connect', 'watch']);
-gulp.task('default', ['coffee', 'js', 'compass', 'connect', 'watch']);
+
+gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'connect', 'watch']);
