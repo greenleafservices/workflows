@@ -14,6 +14,7 @@ var jsSources = [
 ]; /* an array of sources */
 
 var sassSources = ['components/sass/style.scss'];
+/* we only uses style.scss (not the partials) because that is the file that we want compass to look at, not the partials (they are accessed throught the compass process) */
 
 gulp.task('coffee', function() {
   gulp.src(coffeeSources)
@@ -40,3 +41,12 @@ gulp.task('compass', function() {
     .on('error', gutil.log))
     .pipe(gulp.dest('builds/development/css'))
 });
+
+gulp.task('watch', function() {
+  gulp.watch(coffeeSources, ['coffee']);
+  gulp.watch(jsSources, ['js']);
+  /* Here we check alll .scss files for any updates and run the compass task if necessary */  
+  gulp.watch('components/sass/*.scss', ['compass']);
+});
+
+gulp.task('default', ['coffee', 'js', 'compass']);
