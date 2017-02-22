@@ -8,6 +8,8 @@ var gulp = require('gulp'),
     uglify = require('gulp-uglify'),
     minifyHTML = require('gulp-minify-html'),
     jsonminify = require('gulp-jsonminify'),
+    imagemin = require('gulp-imagemin'),
+    pngcrush = require('imagemin-pngcrush'),
     concat = require('gulp-concat');
 
 var env,
@@ -80,6 +82,8 @@ gulp.task('watch', function() {
   gulp.watch('builds/development/*.html', ['html']);
       /* Here we check alll .json development files for any updates and run the json task if necessary */
   gulp.watch('builds/development/js/*.json', ['json']);
+      /* Here we check alll images in the development folder for any updates and run the images task if necessary */
+    gulp.watch('builds/development/images/**/*.*', ['images']);
 });
  
 gulp.task('connect', function() {
@@ -98,6 +102,17 @@ gulp.task('connect', function() {
       .pipe(connect.reload())
 });
 
+gulp.task('images', function() {
+  gulp.src('builds/development/images/**/*.*')
+    .pipe(gulpif(env === 'production', imagemin({
+      progressive: true,
+      svgoPlugins: [{ removeViewBox: false }],
+      use: [pngcrush()]
+    })))
+    .pipe(gulpif(env === 'production', gulp.dest(outputDir + 'images')))
+    .pipe(connect.reload())
+});
+
 gulp.task('json', function() {
   gulp.src('builds/development/js/*.json')
     .pipe(gulpif(env === 'production', jsonminify()))
@@ -105,4 +120,4 @@ gulp.task('json', function() {
     .pipe(connect.reload())
 });
 
-gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'connect', 'watch']);
+gulp.task('default', ['html', 'json', 'coffee', 'js', 'compass', 'images', 'connect', 'watch']);
