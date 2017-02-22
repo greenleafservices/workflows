@@ -6,6 +6,7 @@ var gulp = require('gulp'),
     connect = require('gulp-connect'),
     gulpif = require('gulp-if'),
     uglify = require('gulp-uglify'),
+    minifyHTML = require('gulp-minify-html'),
     concat = require('gulp-concat');
 
 var env,
@@ -74,7 +75,8 @@ gulp.task('watch', function() {
   gulp.watch(jsSources, ['js']);
   /* Here we check alll .scss files for any updates and run the compass task if necessary */ 
   gulp.watch('components/sass/*.scss', ['compass']);
-  gulp.watch(htmlSources, ['html']);
+    /* Here we check alll .html development files for any updates and run the html task if necessary */ 
+  gulp.watch('builds/development/*.html', ['html']);
   gulp.watch(jsonSources, ['json']);
 });
  
@@ -86,8 +88,12 @@ gulp.task('connect', function() {
 });
 
   gulp.task('html', function() {
-    gulp.src(htmlSources)
-     .pipe(connect.reload())
+      /* Using any HTML files in the development folder, 
+      if we're in production environment, minify them and send them to the production folder. Then reload the browser*/
+    gulp.src('builds/development/*.html')
+      .pipe(gulpif(env === 'production', minifyHTML()))
+      .pipe(gulpif(env === 'production', gulp.dest(outputDir)))
+      .pipe(connect.reload())
 });
 
 gulp.task('json', function() {
